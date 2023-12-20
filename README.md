@@ -11,6 +11,9 @@ Kirana Alivia Enrico | 5025211190
 - [Task B (VLSM)](#vlsm)
 - [Task C (Routing)](#routing)
 - [Task D (DHCP)](#dhcp)
+- [Soal 1](#soal-1)
+- [Soal 1](#soal-1)
+
 
 ## Task A (Topology)
 > Tugas pertama, buatlah peta wilayah sesuai berikut ini:
@@ -262,5 +265,105 @@ up route add -net 0.0.0.0 netmask 0.0.0.0 gw 192.232.1.129
 ## Task D (DHCP)
 > Tugas berikutnya adalah memberikan ip pada subnet SchwerMountain, LaubHills, TurkRegion, dan GrobeForest menggunakan bantuan DHCP.
 
+### Configure DHCP Server in Revolte
+```
+apt-get update -y
 
+apt-get install isc-dhcp-server -y
+
+echo "
+INTERFACES=\"eth0\"
+" > /etc/default/isc-dhcp-server
+
+echo "
+
+default-lease-time 28800;
+max-lease-time 57600;
+
+ddns-update-style none;
+
+
+subnet 192.232.1.0 netmask 255.255.255.252 {
+    option routers 192.232.1.1;
+    option broadcast-address 192.232.1.3;
+    option domain-name-servers 192.168.122.1;
+}
+
+# Turk Region
+subnet 192.232.8.0 netmask 255.255.248.0 {
+    range 192.232.8.0 192.232.15.254;
+    option routers 192.232.8.1;
+    option broadcast-address 192.232.15.255;
+    option domain-name-servers 192.168.122.1;
+}
+
+# Grobe Forest
+subnet 192.232.4.0 netmask 255.255.252.0 {
+    range 192.232.4.1 192.232.7.254;
+    option routers 192.232.4.1;
+    option broadcast-address 192.232.7.255;
+    option domain-name-servers 192.168.122.1;
+}
+
+# LaubHilss
+subnet 192.232.2.0 netmask 255.255.254.0 {
+    range 192.232.2.0 192.232.3.254;
+    option routers 192.232.2.1;
+    option broadcast-address 192.232.3.255;
+    option domain-name-servers 192.168.122.1;
+}
+
+# SchwerMountain
+subnet 192.232.1.128 netmask 255.255.255.128 {
+    range 192.232.1.129 192.232.1.254;
+    option routers 192.232.1.129;
+    option broadcast-address 192.232.1.255;
+    option domain-name-servers 192.168.122.1;
+}
+
+" > /etc/dhcp/dhcpd.conf
+
+rm /var/run/dhcpd.pid
+
+service isc-dhcp-server restart
+service isc-dhcp-server status
+
+```
+
+### Configure DHCP Relay in Himmel and Heiter
+```
+apt-get update
+
+apt-get install isc-dhcp-relay -y
+
+echo '
+SERVERS="192.232.0.22"
+INTERFACES="eth0 eth1 eth2"
+OPTIONS=""
+' > /etc/default/isc-dhcp-relay
+
+echo '
+net.ipv4.ip_forward=1
+' > /etc/sysctl.conf
+
+service isc-dhcp-relay restart
+
+```
+
+## Soal 1
+> Agar topologi yang kalian buat dapat mengakses keluar, kalian diminta untuk mengkonfigurasi Aura menggunakan iptables, tetapi tidak ingin menggunakan MASQUERADE.
+
+### Add the following iptables to Aura
+```
+iptables -t nat -A POSTROUTING -o eth0 -j SNAT --to-source $(/sbin/ip -4 a show eth0 | /bin/grep -Po 'inet \K[0-9.]*')
+
+```
+
+The purpose of the following iptables is to change the IP of the source packet that will exit through the eth0 interface of Aura to the outgoing NAT. 
+The command $(/sbin/ip -4 a show eth0 | /bin/grep -Po 'inet \K[0-9.]*') is used to obtain the eth0 IP address from the Aura router.
+
+### Test ping with google using the following syntax
+```
+ping google.com
+```
 
