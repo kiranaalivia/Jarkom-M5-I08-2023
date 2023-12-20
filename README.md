@@ -14,5 +14,5 @@ Kirana Alivia Enrico | 5025211190
 
 ## Task A (Topology)
 <img src="./img/VLSM.png" width="500">
-<img src="./img/VLSM TREE.png" width="500">
+<img src="./img/VLSM TREE.jpg" width="500">
 
