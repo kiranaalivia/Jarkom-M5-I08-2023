@@ -195,3 +195,18 @@ auto eth0
 iface eth0 inet dhcp
 
 ```
+
+## Task B (VLSM)
+### Subnetting Process
+<img src="./img/VLSM.png" width="500">
+
+### Classless method to determine the length of the netmask to be used
+<img src="./img/1.png" width="500">
+
+### VLSM tree diagram 
+<img src="./img/VLSM TREE.jpg" width="500">
+
+### The division of IP addresses resulting from the VLSM tree
+<img src="./img/2.png" width="500">
+
+
