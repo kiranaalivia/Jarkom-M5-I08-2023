@@ -432,11 +432,32 @@ So, this rule will drop ICMP packets if the number of ICMP connections from a si
 ## Question 5
 > Selain itu, akses menuju WebServer hanya diperbolehkan saat jam kerja yaitu Senin-Jumat pada pukul 08.00-16.00.
 
+- In the iptables.sh on both web servers (Sein & Stark), add above script number 4 as follows
+```sh
+iptables -A INPUT -m time --weekdays Sat,Sun -j DROP
+iptables -A INPUT -p all -m time --timestart 16:00 --timestop 23:59:59 -j DROP
+iptables -A INPUT -p all -m time --timestart 00:00 --timestop 08:00 -j DROP
+```
+### Explanation
+- Line 2 and 3 perform a DROP on all INPUT requests outside the desired time range (08:00 - 16:00), which is before 8 AM (00:00 - 08:00) and after 4 PM (16:00 - 23:59:59).
+- Line 1 performs a DROP on all INPUT requests outside of weekdays (Monday - Friday), which includes Saturday and Sunday.
+
 ## Question 6
 > Lalu, karena ternyata terdapat beberapa waktu di mana network administrator dari WebServer tidak bisa stand by, sehingga perlu ditambahkan rule bahwa akses pada hari Senin - Kamis pada jam 12.00 - 13.00 dilarang (istirahat maksi cuy) dan akses di hari Jumat pada jam 11.00 - 13.00 juga dilarang (maklum, Jumatan rek).
 
+- Add this to the iptables.sh file on both web servers (Sein & Stark), specifically above script number 5
+```sh
+iptables -A INPUT -m time --timestart 12:00 --timestop 13:00 --weekdays Mon,Tue,Wed,Thu -j DROP
+iptables -A INPUT -m time --timestart 11:00 --timestop 13:00 --weekdays Fri -j DROP
+```
+
+### Explanation
+- The first line drops all INPUT requests from Monday to Thursday during lunchtime (12:00 - 13:00)
+- The second line drops all INPUT requests on Friday during the Friday prayer time (11:00 - 13:00)
+
 ## Question 7
 > Karena terdapat 2 WebServer, kalian diminta agar setiap client yang mengakses Sein dengan Port 80 akan didistribusikan secara bergantian pada Sein dan Stark secara berurutan dan request dari client yang mengakses Stark dengan port 443 akan didistribusikan secara bergantian pada Sein dan Stark secara berurutan.
+ 
 
 ## Question 8
 > Karena berbeda koalisi politik, maka subnet dengan masyarakat yang berada pada Revolte dilarang keras mengakses WebServer hingga masa pencoblosan pemilu kepala suku 2024 berakhir. Masa pemilu (hingga pemungutan dan penghitungan suara selesai) kepala suku bersamaan dengan masa pemilu Presiden dan Wakil Presiden Indonesia 2024.
