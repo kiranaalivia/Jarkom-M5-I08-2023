@@ -457,7 +457,16 @@ iptables -A INPUT -m time --timestart 11:00 --timestop 13:00 --weekdays Fri -j D
 
 ## Question 7
 > Karena terdapat 2 WebServer, kalian diminta agar setiap client yang mengakses Sein dengan Port 80 akan didistribusikan secara bergantian pada Sein dan Stark secara berurutan dan request dari client yang mengakses Stark dengan port 443 akan didistribusikan secara bergantian pada Sein dan Stark secara berurutan.
- 
+
+- In the iptables.sh file on the routers associated with the client (Heiter & Himmel), add a script to add iptables rules as follows
+```sh
+iptables -A PREROUTING -t nat -p tcp --dport 80 -d 192.232.4.2 -m statistic --mode nth --every 2 --packet 0 -j DNAT --to-destination 192.232.0.10:80
+iptables -A PREROUTING -t nat -p tcp --dport 443 -d 192.232.0.10 -m statistic --mode nth --every 2 --packet 0 -j DNAT --to-destination 192.232.4.2:443
+```
+
+### Explanation
+- Line 1 redirects requests directed to the IP Sein (192.232.4.2) on port 80 so that they are alternately directed there and also to Stark (192.232.0.10) on the same port.
+- Line 2 redirects requests directed to the IP Stark (192.232.0.10) on port 443 so that they are alternately directed there and also to Sein (192.232.4.2) on the same port.
 
 ## Question 8
 > Karena berbeda koalisi politik, maka subnet dengan masyarakat yang berada pada Revolte dilarang keras mengakses WebServer hingga masa pencoblosan pemilu kepala suku 2024 berakhir. Masa pemilu (hingga pemungutan dan penghitungan suara selesai) kepala suku bersamaan dengan masa pemilu Presiden dan Wakil Presiden Indonesia 2024.
