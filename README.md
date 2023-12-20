@@ -420,8 +420,8 @@ So, this rule will drop ICMP packets if the number of ICMP connections from a si
 - Create a .sh file on both web servers (Sein & Stark), let's call it iptables.sh, which stores a script to add iptables rules as follows
 
   ```sh
-  iptables -A INPUT -p tcp --dport 22 -m iprange --src-range 192.172.4.1-192.172.7.254  -j ACCEPT
-  iptables -A OUTPUT -p tcp --sport 22 -m iprange --dst-range 192.172.4.1-192.172.7.254 -j ACCEPT
+  iptables -A INPUT -p tcp --dport 22 -m iprange --src-range 192.172.4.1-192.232.7.254  -j ACCEPT
+  iptables -A OUTPUT -p tcp --sport 22 -m iprange --dst-range 192.172.4.1-192.232.7.254 -j ACCEPT
   iptables -A INPUT -p tcp --dport 22 -j DROP
   iptables -A OUTPUT -p tcp --sport 22 -j DROP
   ```
