@@ -11,3 +11,8 @@ Kirana Alivia Enrico | 5025211190
 - [Task B (VLSM)](#vlsm)
 - [Task C (Routing)](#routing)
 - [Task D (DHCP)](#dhcp)
+
+## Task A (Topology)
+<img src="./img/VLSM.png" width="500">
+<img src="./img/VLSM-TREE.png" width="500">
+
