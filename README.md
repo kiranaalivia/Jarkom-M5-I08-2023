@@ -197,6 +197,8 @@ iface eth0 inet dhcp
 ```
 
 ## Task B (VLSM)
+> Untuk menghitung rute-rute yang diperlukan, gunakan perhitungan dengan metode VLSM. Buat juga pohonnya, dan lingkari subnet yang dilewati.
+
 ### Subnetting Process
 <img src="./img/VLSM.png" width="500">
 
@@ -208,5 +210,57 @@ iface eth0 inet dhcp
 
 ### The division of IP addresses resulting from the VLSM tree
 <img src="./img/2.png" width="500">
+
+## Task C (Routing)
+> Kemudian buatlah rute sesuai dengan pembagian IP yang kalian lakukan.
+
+- Aura
+```
+#Heiter
+up route add -net 192.233.4.0 netmask 255.255.252.0 gw 192.233.1.126
+up route add -net 192.233.8.0 netmask 255.255.248.0 gw 192.233.1.126
+
+#Frieren
+up route add -net 192.232.1.0 netmask 255.255.255.252 gw 192.232.1.8
+up route add -net 192.232.1.4 netmask 255.255.255.252 gw 192.232.1.8
+up route add -net 192.232.1.128 netmask 255.255.255.128 gw 192.232.1.8
+up route add -net 192.232.2.0 netmask 255.255.254.0 gw 192.232.1.8
+up route add -net 192.232.1.8 netmask 255.255.255.252 gw 192.232.1.8
+up route add -net 192.232.1.12 netmask 255.255.255.252 gw 192.232.1.8
+up route add -net 192.232.1.6 netmask 255.255.255.252 gw 192.232.1.8
+
+```
+
+- Heiter
+```
+up route add -net 0.0.0.0 netmask 0.0.0.0 gw 192.232.1.125
+```
+
+- Frieren
+```
+up route add -net 192.232.1.0 netmask 255.255.255.252 gw 192.232.1.10
+up route add -net 192.232.1.4 netmask 255.255.255.252 gw 192.232.1.10
+up route add -net 192.232.1.128 netmask 255.255.255.128 gw 192.232.1.10
+up route add -net 192.232.2.0 netmask 255.255.254.0 gw 192.232.1.10
+up route add -net 0.0.0.0 netmask 0.0.0.0 gw 192.232.1.7
+
+```
+
+- himmel
+```
+up route add -net 192.232.1.0 netmask 255.255.255.252 gw 192.232.1.130
+up route add -net 192.232.1.4 netmask 255.255.255.252 gw 192.232.1.130
+up route add -net 0.0.0.0 netmask 0.0.0.0 gw 192.232.1.9
+
+```
+
+- Fern
+```
+up route add -net 0.0.0.0 netmask 0.0.0.0 gw 192.232.1.129
+```
+
+## Task D (DHCP)
+> Tugas berikutnya adalah memberikan ip pada subnet SchwerMountain, LaubHills, TurkRegion, dan GrobeForest menggunakan bantuan DHCP.
+
 
 
