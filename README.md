@@ -15,6 +15,7 @@ Kirana Alivia Enrico | 5025211190
 ## Task A (Topology)
 > Tugas pertama, buatlah peta wilayah sesuai berikut ini:
 >
+> <img src="./img/Topology.png" width="500">
 >
 > Keterangan: Richter adalah DNS Server, Revolte adalah DHCP Server, Sein dan Stark adalah Web Server, Jumlah Host pada SchwerMountain adalah 64, Jumlah Host pada LaubHills adalah 255, Jumlah Host pada TurkRegion adalah 1022, Jumlah Host pada GrobeForest adalah 512
 
