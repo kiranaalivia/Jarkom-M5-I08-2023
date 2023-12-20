@@ -471,9 +471,76 @@ iptables -A PREROUTING -t nat -p tcp --dport 443 -d 192.232.0.10 -m statistic --
 ## Question 8
 > Karena berbeda koalisi politik, maka subnet dengan masyarakat yang berada pada Revolte dilarang keras mengakses WebServer hingga masa pencoblosan pemilu kepala suku 2024 berakhir. Masa pemilu (hingga pemungutan dan penghitungan suara selesai) kepala suku bersamaan dengan masa pemilu Presiden dan Wakil Presiden Indonesia 2024.
 
+- ``--datestart`` and ``--datestop`` to limit access to certain days. Here a subnet from Revolte is needed because the desired restriction is on subnets. Here our subnet is on A1 which has IP 192.232.1.3/30 and determines the protocol used as follows
+
+```
+iptables -A INPUT -p tcp --dport 80 -s 192.232.1.3/30 -m time --datestart 2023-12-10 --datestop 2024-02-15 -j DROP
+```
+
+- ``-A INPUT`` : Add rules to the INPUT chain (the chain used for traffic going to the system).
+- ``-p tcp`` : Determines the protocol used, in this case TCP.
+- ``--dport 80`` : Specifies the destination port, in this case port 80 (generally used for HTTP services).
+- ``-s 192.232.1.3/30`` : Specifies the permitted source addresses. In this case, only traffic originating from the IP range 192.232.1.3 to 192.173.1.6 (192.173.1.3/30) is allowed through.
+- ``-m time --datestart 2023-12-10 --datestop 2024-02-15`` : Use the time module to define date-based rules. This rule will apply from December 10, 2023 to February 15, 2024.
+- ``-j DROP`` : Determines the action to be taken if the packet meets the rule criteria, in this case rejecting (DROP) the packet.
+
 ## Question 9
 > Sadar akan adanya potensial saling serang antar kubu politik, maka WebServer harus dapat secara otomatis memblokir alamat IP yang melakukan scanning port dalam jumlah banyak (maksimal 20 scan port) di dalam selang waktu 10 menit. (clue: test dengan nmap)
+
+- We need to use port scanning, we need a special chain called portscan. This chain can later be used to manage rules related to port scanning detection.
+
+```
+iptables -N portscan
+
+iptables -A INPUT -m recent --name portscan --update --seconds 600 --hitcount 20 -j DROP
+iptables -A FORWARD -m recent --name portscan --update --seconds 600 --hitcount 20 -j DROP
+
+iptables -A INPUT -m recent --name portscan --set -j ACCEPT
+iptables -A FORWARD -m recent --name portscan --set -j ACCEPT
+```
+### Explanation
+- ``iptables -N portscan`` : This establishes a distinct chain named "portscan." Subsequently, this chain can be employed for the administration of rules associated with the detection of port scanning.
+```
+iptables -A INPUT -m recent --name portscan --update --seconds 600 --hitcount 20 -j DROP
+```
+- ``-m recent --name portscan`` : Uses the recent module to track connections or packages.
+- ``--update`` : Updating newest information.
+- ``--seconds 6--`` : Sets the time in seconds, in this case 600 seconds (10 minutes).
+- ``--hitcount 20`` : Sets the number of hits (updates) required to trigger the next action.
+- ``-j DROP`` : Specifies the action to be taken if the rule criteria are met, in this case rejecting (DROP) the packet.
+
+So, this rule will reject INPUT packets if more than 20 updates occur in a 10 minute period, which can be considered a sign of a port scanning attack.
+
+```
+iptables -A FORWARD -m recent --name portscan --update --seconds 600 --hitcount 20 -j DROP
+```
+- Adding rules to the FORWARD chain.
+- Similar to the previous rule, this rule handles packets that pass through the system, namely packets that are forwarded. If the number of package updates exceeds 20 in 10 minutes, the package will be rejected.
+
+```
+iptables -A INPUT -m recent --name portscan --set -j ACCEPT
+```
+- ``-m recent --name portscan`` : Using the recent module to track connections or packages.
+- ``--set`` : Sets the information associated with the new package.
+- ``-j ACCEPT`` : Specifies the action to take if the packet meets the rule criteria, in this case accepting the packet.
+
+So, this rule allows new INPUT packets to pass through and establishes the information that this packet is not related to a port scanning attack.
+
+```
+iptables -A FORWARD -m recent --name portscan --set -j ACCEPT
+```
+- Adding rules to the FORWARD chain.
+- Similar to the previous rule, this rule allows forwarded packets to pass through and establishes the information that these packets are not related to a port scanning attack.
 
 ## Question 10
 > Karena kepala suku ingin tau paket apa saja yang di-drop, maka di setiap node server dan router ditambahkan logging paket yang di-drop dengan standard syslog level.
 
+- In ``iptables.sh`` on all routers and servers, add a script to add iptables rules above the script for no. 6 as follows,
+
+```
+service rsyslog restart
+iptables -A INPUT -j LOG --log-prefix "Dropped: " --log-level debug -m limit --limit 1/second
+```
+### Explanation
+- The 1st line turns on the rsyslog service which is needed for the logging process in ``/var/log/syslog``.
+- The 2nd line logs every time there is input with the prefix Dropped which uses a debug level log with a limit of 1 per second.
