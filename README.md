@@ -13,6 +13,9 @@ Kirana Alivia Enrico | 5025211190
 - [Task D (DHCP)](#dhcp)
 
 ## Task A (Topology)
-<img src="./img/VLSM.png" width="500">
-<img src="./img/VLSM TREE.jpg" width="500">
+> Tugas pertama, buatlah peta wilayah sesuai berikut ini:
+>
+>
+> Keterangan: Richter adalah DNS Server, Revolte adalah DHCP Server, Sein dan Stark adalah Web Server, Jumlah Host pada SchwerMountain adalah 64, Jumlah Host pada LaubHills adalah 255, Jumlah Host pada TurkRegion adalah 1022, Jumlah Host pada GrobeForest adalah 512
+
 
