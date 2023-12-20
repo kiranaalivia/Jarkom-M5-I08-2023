@@ -11,9 +11,16 @@ Kirana Alivia Enrico | 5025211190
 - [Task B (VLSM)](#vlsm)
 - [Task C (Routing)](#routing)
 - [Task D (DHCP)](#dhcp)
-- [Soal 1](#soal-1)
-- [Soal 1](#soal-1)
-
+- [Question 1](#question-1)
+- [Question 2](#question-2)
+- [Question 3](#question-3)
+- [Question 4](#question-4)
+- [Question 5](#question-5)
+- [Question 6](#question-6)
+- [Question 7](#question-7)
+- [Question 8](#question-8)
+- [Question 9](#question-9)
+- [Question 10](#question-10)
 
 ## Task A (Topology)
 > Tugas pertama, buatlah peta wilayah sesuai berikut ini:
@@ -350,7 +357,7 @@ service isc-dhcp-relay restart
 
 ```
 
-## Soal 1
+## Question 1
 > Agar topologi yang kalian buat dapat mengakses keluar, kalian diminta untuk mengkonfigurasi Aura menggunakan iptables, tetapi tidak ingin menggunakan MASQUERADE.
 
 ### Add the following iptables to Aura
@@ -366,4 +373,77 @@ The command $(/sbin/ip -4 a show eth0 | /bin/grep -Po 'inet \K[0-9.]*') is used 
 ```
 ping google.com
 ```
+
+## Question 2
+> Kalian diminta untuk melakukan drop semua TCP dan UDP kecuali port 8080 pada TCP.
+
+### Configure the following iptables on the client
+```sh
+iptables -F
+iptables -A INPUT -p tcp --dport 8080 -j ACCEPT
+iptables -A INPUT -p tcp -j DROP
+iptables -A INPUT -p udp -j DROP
+
+```
+
+### Explanation
+- ``A INPUT``: Adding a rule to the INPUT chain (chain used for traffic heading towards the system).
+- ``p tcp``: Specifies the protocol used, in this case TCP. --dport 8080: Specifies the destination port, in this case port 8080.
+- ``j ACCEPT``: Specifies the action taken if a packet meets the rule criteria, in this case, accepting the packet.
+- ``j DROP``: Specifies the action taken if a packet meets the rule criteria, in this case, rejecting (DROP) the packet.
+So, this rule allows TCP traffic heading towards port 8080 to be accepted.
+
+## Question 3
+> Kepala Suku North Area meminta kalian untuk membatasi DHCP dan DNS Server hanya dapat dilakukan ping oleh maksimal 3 device secara bersamaan, selebihnya akan di drop.
+
+### Add the following iptables rules to the DHCP server and DNS server
+```sh
+iptables -I INPUT -p icmp -m connlimit --connlimit-above 3 --connlimit-mask 0 -j DROP
+iptables -I INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
+```
+### Explanation
+- ``-I INPUT``: Inserts a rule at the beginning of the INPUT chain.
+- ``-p icmp``: Specifies the protocol used, in this case ICMP (Internet Control Message Protocol), commonly used for ping and network control messages.
+- ``-m connlimit``: Utilizes the connlimit module to limit the number of connections.
+- ``--connlimit-above 3``: Sets an upper limit on the number of allowed connections. In this case, this rule will attempt to limit ICMP connections above 3.
+- ``--connlimit-mask 0``: Sets the mask to identify connections. With a value of 0, this rule will limit the number of connections based on the source IP address.
+- ``--state ESTABLISHED,RELATED``: Specifies that this rule will apply to packets related to established connections (ESTABLISHED) or related to existing connections (RELATED), for instance, response packets related to connection requests.
+- ``-m state``: Uses the state module to manage connection status.
+- ``-j DROP``: Specifies the action taken if the connection limit is exceeded, in this case, to drop (DROP) packets.
+
+So, this rule will drop ICMP packets if the number of ICMP connections from a single IP address exceeds 3. It also allows packets related to established connections or related to existing connections to enter the system. This ensures that responses from existing connections or packets related to established connections are accepted.
+
+## Question 4
+> Lakukan pembatasan sehingga koneksi SSH pada Web Server hanya dapat dilakukan oleh masyarakat yang berada pada GrobeForest.
+
+- The IP range of the GrobeForest subnet is 192.232.4.1 - 192.232.7.254.
+- Create a .sh file on both web servers (Sein & Stark), let's call it iptables.sh, which stores a script to add iptables rules as follows
+
+  ```sh
+  iptables -A INPUT -p tcp --dport 22 -m iprange --src-range 192.172.4.1-192.172.7.254  -j ACCEPT
+  iptables -A OUTPUT -p tcp --sport 22 -m iprange --dst-range 192.172.4.1-192.172.7.254 -j ACCEPT
+  iptables -A INPUT -p tcp --dport 22 -j DROP
+  iptables -A OUTPUT -p tcp --sport 22 -j DROP
+  ```
+### Explanation
+- The actions performed by lines 3 and 4 are to DROP all INPUT requests directed to port 22 (TCP) and OUTPUT requests originating from port 22 (TCP), which is the default SSH port.
+- Then, rules were added in lines 1 and 2 to accept similar requests only if the destination IP range is part of the GrobeForest subnet for INPUT and the source IP range is part of the GrobeForest subnet for OUTPUT.
+
+## Question 5
+> Selain itu, akses menuju WebServer hanya diperbolehkan saat jam kerja yaitu Senin-Jumat pada pukul 08.00-16.00.
+
+## Question 6
+> Lalu, karena ternyata terdapat beberapa waktu di mana network administrator dari WebServer tidak bisa stand by, sehingga perlu ditambahkan rule bahwa akses pada hari Senin - Kamis pada jam 12.00 - 13.00 dilarang (istirahat maksi cuy) dan akses di hari Jumat pada jam 11.00 - 13.00 juga dilarang (maklum, Jumatan rek).
+
+## Question 7
+> Karena terdapat 2 WebServer, kalian diminta agar setiap client yang mengakses Sein dengan Port 80 akan didistribusikan secara bergantian pada Sein dan Stark secara berurutan dan request dari client yang mengakses Stark dengan port 443 akan didistribusikan secara bergantian pada Sein dan Stark secara berurutan.
+
+## Question 8
+> Karena berbeda koalisi politik, maka subnet dengan masyarakat yang berada pada Revolte dilarang keras mengakses WebServer hingga masa pencoblosan pemilu kepala suku 2024 berakhir. Masa pemilu (hingga pemungutan dan penghitungan suara selesai) kepala suku bersamaan dengan masa pemilu Presiden dan Wakil Presiden Indonesia 2024.
+
+## Question 9
+> Sadar akan adanya potensial saling serang antar kubu politik, maka WebServer harus dapat secara otomatis memblokir alamat IP yang melakukan scanning port dalam jumlah banyak (maksimal 20 scan port) di dalam selang waktu 10 menit. (clue: test dengan nmap)
+
+## Question 10
+> Karena kepala suku ingin tau paket apa saja yang di-drop, maka di setiap node server dan router ditambahkan logging paket yang di-drop dengan standard syslog level.
 
